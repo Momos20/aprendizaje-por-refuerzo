@@ -1,17 +1,6 @@
-# Aprendizaje por Refuerzo - Ejemplos reproducibles en Python
+# Aprendizaje por Refuerzo
 
 Repositorio de apoyo para la exposición **Aprendizaje por Refuerzo (Reinforcement Learning)** del curso de **Aprendizaje Automático**.
-
-El objetivo de este repositorio es acompañar la presentación con ejemplos computacionales simples, reproducibles y bien documentados. A través del código se ilustran los conceptos centrales del aprendizaje por refuerzo:
-
-- agente, entorno, estado, acción, recompensa y política;
-- aprendizaje por ensayo y error;
-- exploración vs. explotación;
-- recompensa acumulada a largo plazo;
-- entrenamiento de una política mediante Q-Learning tabular;
-- evaluación del desempeño de un agente después del entrenamiento.
-
----
 
 ## 1. Estructura del repositorio
 
@@ -250,25 +239,7 @@ H → → G
 
 Cada flecha representa la acción que el agente considera más conveniente en cada estado.
 
----
-
-## 7. Relación entre los conceptos de la exposición y el código
-
-| Concepto de la exposición | Archivo relacionado | Explicación |
-|---|---|---|
-| Agente | `examples/02_q_learning_gridworld.py` | Es el programa que aprende a tomar decisiones. |
-| Entorno | `src/gridworld.py` | Define el tablero, la meta, los huecos y las reglas. |
-| Estado | `src/gridworld.py` | Cada casilla del tablero corresponde a un estado. |
-| Acción | `src/gridworld.py` | Movimientos posibles: arriba, derecha, abajo e izquierda. |
-| Recompensa | `src/gridworld.py` | Retroalimentación positiva o negativa después de cada acción. |
-| Política | `src/q_learning.py` | Estrategia que indica qué acción tomar en cada estado. |
-| Exploración vs. explotación | `examples/01_bandit_epsilon_greedy.py` y `src/q_learning.py` | Uso de la estrategia epsilon-greedy. |
-| Q-Learning | `src/q_learning.py` | Algoritmo que actualiza la tabla Q. |
-| Evaluación | `examples/02_q_learning_gridworld.py` | Calcula tasa de éxito, recompensa media y pasos promedio. |
-
----
-
-## 8. Reproducibilidad
+## 7. Reproducibilidad
 
 Los scripts incluyen semillas fijas para facilitar la reproducción de los resultados. Sin embargo, los resultados pueden cambiar si se modifican algunos hiperparámetros.
 
@@ -287,46 +258,3 @@ Parámetros importantes:
 Por ejemplo, aumentar `episodes` suele mejorar el aprendizaje, pero también aumenta el tiempo de ejecución. Reducir demasiado `epsilon` puede hacer que el agente deje de explorar antes de encontrar una buena política.
 
 ---
-
-## 9. Comandos rápidos
-
-Desde la raíz del repositorio:
-
-```bash
-pip install -r requirements.txt
-python examples/01_bandit_epsilon_greedy.py
-python examples/02_q_learning_gridworld.py
-```
-
-Después de ejecutar ambos scripts, revisar la carpeta:
-
-```text
-outputs/
-```
-
-Allí estarán las gráficas y la tabla Q generada.
-
----
-
-## 10. Cómo subirlo a GitHub
-
-1. Crear un repositorio público en GitHub.
-2. Subir todos los archivos de esta carpeta.
-3. Verificar que `README.md`, `requirements.txt`, `src/`, `examples/` y `outputs/` estén incluidos.
-4. Ejecutar los ejemplos desde la raíz del repositorio para confirmar que todo funciona.
-5. Incluir las imágenes de `outputs/` como evidencia de ejecución.
-6. Compartir el enlace del repositorio en la presentación o en la entrega del curso.
-
----
-
-## 11. Interpretación para la exposición
-
-Una forma sencilla de explicar el repositorio durante la presentación es:
-
-> En este repositorio separamos el código en dos partes. La carpeta `src` contiene la lógica reutilizable: `gridworld.py` define el ambiente donde el agente aprende, y `q_learning.py` implementa el algoritmo de Q-Learning. La carpeta `examples` contiene los archivos que se ejecutan. Primero se corre el ejemplo del bandit para explicar exploración vs. explotación, y luego el ejemplo de GridWorld para mostrar cómo un agente aprende una política mediante recompensas y penalizaciones.
-
----
-
-## 12. Créditos
-
-Material elaborado como apoyo para la exposición de **Aprendizaje por Refuerzo** en el curso de **Aprendizaje Automático - Semestre 2026-1**.
