@@ -73,13 +73,11 @@ def main() -> None:
     plt.savefig(output_dir / "q_learning_tasa_exito.png", dpi=160)
     plt.close()
 
-    print("=== Evaluación de política aprendida ===")
-    print(f"Tasa de éxito: {metrics['success_rate']:.2%}")
+    print(" Evaluación de política aprendida ")
     print(f"Recompensa media: {metrics['mean_reward']:.3f}")
     print(f"Pasos promedio: {metrics['mean_steps']:.2f}")
     print("\nPolítica aprendida:")
     print(env.render_policy(q_table))
-    print("\nArchivos generados en la carpeta outputs/.")
 
 
 if __name__ == "__main__":
