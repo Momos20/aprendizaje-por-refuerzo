@@ -214,8 +214,7 @@ python examples/02_q_learning_gridworld.py
 Salida esperada en consola:
 
 ```text
-=== Evaluación de política aprendida ===
-Tasa de éxito: valor cercano a 100 %
+Evaluación de política aprendida
 Recompensa media: valor positivo cercano a 1
 Pasos promedio: número bajo de pasos hacia la meta
 ```
