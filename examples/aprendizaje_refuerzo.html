@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo visual: Aprendizaje por Refuerzo</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --border: #d9e2ef;
+      --primary: #5b5fc7;
+      --primary-soft: #eef0ff;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #f59e0b;
+      --cell: #f8fafc;
+      --shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #f5f7fb 0%, #edf2ff 100%);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 18px 50px;
+    }
+
+    .hero {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(30px, 4vw, 50px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .hero-card {
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: #fbfdff;
+      padding: 18px;
+    }
+
+    .hero-card h3 {
+      margin: 0 0 14px;
+      font-size: 17px;
+    }
+
+    .mini-flow {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-weight: 800;
+      color: var(--muted);
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .tab-btn.active,
+    .tab-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .panel p {
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: 0;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(64px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .cell {
+      position: relative;
+      aspect-ratio: 1;
+      border: 2px solid var(--border);
+      background: var(--cell);
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+      font-weight: 900;
+      transition: 0.25s ease;
+      overflow: hidden;
+    }
+
+    .cell.start {
+      background: #eef0ff;
+      border-color: #bfc5ff;
+    }
+
+    .cell.goal {
+      background: #ecfdf3;
+      border-color: #86efac;
+      color: var(--success);
+    }
+
+    .cell.hole {
+      background: #fff1f2;
+      border-color: #fecdd3;
+      color: var(--danger);
+    }
+
+    .agent {
+      position: absolute;
+      width: 44%;
+      height: 44%;
+      border-radius: 999px;
+      background: var(--primary);
+      box-shadow: 0 12px 22px rgba(91, 95, 199, 0.32);
+      animation: pop 0.25s ease;
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.7); opacity: 0.4; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .policy-arrow {
+      position: absolute;
+      right: 8px;
+      bottom: 6px;
+      font-size: 22px;
+      color: var(--primary);
+      opacity: 0.78;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: 0;
+      background: var(--primary);
+      color: white;
+      font-weight: 800;
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    button.secondary {
+      background: #eef0ff;
+      color: var(--primary);
+    }
+
+    button.warning {
+      background: var(--warning);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .metric small {
+      color: var(--muted);
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .metric strong {
+      font-size: 25px;
+      letter-spacing: -0.03em;
+    }
+
+    .explain-box {
+      background: #0f172a;
+      color: #e5e7eb;
+      border-radius: 20px;
+      padding: 18px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.65;
+      min-height: 210px;
+      overflow: auto;
+    }
+
+    .formula {
+      background: #fbfdff;
+      border: 1px dashed #b7c3d8;
+      padding: 16px;
+      border-radius: 18px;
+      font-weight: 800;
+      text-align: center;
+      margin: 16px 0;
+      color: #344054;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .concept-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .concept-card h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .concept-card p {
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .bandit-arms {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .arm {
+      border: 1px solid var(--border);
+      background: #fbfdff;
+      border-radius: 20px;
+      padding: 16px 10px;
+      text-align: center;
+      transition: 0.2s ease;
+    }
+
+    .arm.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      transform: translateY(-4px);
+    }
+
+    .arm .emoji {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .bar-wrap {
+      height: 10px;
+      background: #eef2f7;
+      border-radius: 999px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      border-radius: 999px;
+      transition: 0.25s ease;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .timeline-item .dot {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .timeline-item h3 {
+      margin: 0 0 4px;
+      font-size: 17px;
+    }
+
+    .timeline-item p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .output-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .fake-chart {
+      height: 160px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(to top, rgba(91,95,199,0.13), transparent),
+        repeating-linear-gradient(to right, #fff 0, #fff 24px, #f7f9fc 24px, #f7f9fc 48px);
+      position: relative;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .fake-chart svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .pill {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 28px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .grid-layout,
+      .cards,
+      .output-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics,
+      .bandit-arms {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Demo interactiva del repositorio</div>
+        <h1>Aprendizaje por Refuerzo</h1>
+        <p>
+          Demo interactiva del comportamiento de un agente usando Bandit epsilon-greedy y GridWorld con Q-Learning.
+        </p>
+      </div>
+      <div class="hero-card">
+        <h3>Lectura rápida del proyecto</h3>
+        <div class="mini-flow">
+          <div class="mini-step"><span class="badge">1</span><span>El agente observa un estado.</span></div>
+          <div class="mini-step"><span class="badge">2</span><span>Elige una acción: explorar o explotar.</span></div>
+          <div class="mini-step"><span class="badge">3</span><span>Recibe una recompensa del ambiente.</span></div>
+          <div class="mini-step"><span class="badge">4</span><span>Actualiza su tabla Q y mejora su política.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="bandit">Bandit epsilon-greedy</button>
+      <button class="tab-btn" data-tab="gridworld">GridWorld Q-Learning</button>
+    </nav>
+
+    <section id="bandit" class="section active">
+      <div class="grid-layout">
+        <div class="panel">
+          <h2>Bandit multi-brazo</h2>
+          <p>
+            Este ejemplo representa varias máquinas tragamonedas. El agente no conoce cuál paga mejor.
+            Con epsilon-greedy, algunas veces explora y otras explota la mejor opción estimada.
+          </p>
+          <div class="bandit-arms" id="banditArms"></div>
+          <div class="controls">
+            <button onclick="runBanditStep()">Ejecutar un paso</button>
+            <button class="secondary" onclick="runBanditMany()">Simular 100 pasos</button>
+            <button class="secondary" onclick="resetBandit()">Reiniciar</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Qué está pasando</h2>
+          <div class="metrics">
+            <div class="metric"><small>Pasos</small><strong id="banditSteps">0</strong></div>
+            <div class="metric"><small>Epsilon</small><strong>0.10</strong></div>
+            <div class="metric"><small>Promedio</small><strong id="banditAvg">0.000</strong></div>
+          </div>
+          <div class="explain-box" id="banditLog">
+            Presiona “Ejecutar un paso” para ver cómo el agente decide entre explorar o explotar.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gridworld" class="section">
+      <div class="grid-layout">
+        <div class="panel">
+          <h2>GridWorld en vivo</h2>
+          <p>
+            El agente inicia en <strong>S</strong>, debe llegar a <strong>G</strong> y evitar los huecos <strong>H</strong>.
+            Después de entrenar, se muestran flechas con la política aprendida.
+          </p>
+
+          <div class="board" id="board"></div>
+
+          <div class="controls">
+            <button onclick="trainAgent()">Entrenar agente</button>
+            <button class="secondary" onclick="runLearnedPolicy()">Ejecutar política aprendida</button>
+            <button class="warning" onclick="manualRandomStep()">Paso aleatorio</button>
+            <button class="secondary" onclick="resetGridworld()">Reiniciar</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Q-Learning</h2>
+          <p>
+            La tabla Q guarda el valor esperado de hacer una acción en un estado. El agente la actualiza con esta regla:
+          </p>
+          <div class="formula">Q(s,a) ← Q(s,a) + α [ r + γ max Q(s',a') − Q(s,a) ]</div>
+          <div class="metrics">
+            <div class="metric"><small>Episodios</small><strong id="episodesMetric">0</strong></div>
+            <div class="metric"><small>Éxito estimado</small><strong id="successMetric">0%</strong></div>
+            <div class="metric"><small>Recompensa</small><strong id="rewardMetric">0.00</strong></div>
+          </div>
+          <div class="explain-box" id="gridLog">
+            Presiona “Entrenar agente”. La demo ejecutará muchos episodios simulados y luego mostrará la política aprendida con flechas.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab-btn');
+    const sections = document.querySelectorAll('.section');
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((item) => item.classList.remove('active'));
+        sections.forEach((item) => item.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // --------------------------
+    // Bandit epsilon-greedy demo
+    // --------------------------
+    const trueMeans = [0.2, 0.5, 0.1, 0.8, 0.4];
+    let estimatedValues = [0, 0, 0, 0, 0];
+    let actionCounts = [0, 0, 0, 0, 0];
+    let banditRewards = [];
+    const epsilonBandit = 0.10;
+    let lastArm = null;
+
+    function normalReward(mean) {
+      // Aproximación simple de ruido usando Box-Muller.
+      const u = Math.random() || 0.0001;
+      const v = Math.random() || 0.0001;
+      const noise = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v) * 0.10;
+      return mean + noise;
+    }
+
+    function resetBandit() {
+      estimatedValues = [0, 0, 0, 0, 0];
+      actionCounts = [0, 0, 0, 0, 0];
+      banditRewards = [];
+      lastArm = null;
+      renderBandit();
+      document.getElementById('banditLog').innerText = 'Bandit reiniciado. El agente todavía no sabe cuál brazo paga mejor.';
+    }
+
+    function runBanditStep() {
+      const exploring = Math.random() < epsilonBandit;
+      let action;
+      if (exploring) {
+        action = Math.floor(Math.random() * trueMeans.length);
+      } else {
+        action = estimatedValues.indexOf(Math.max(...estimatedValues));
+      }
+
+      const reward = normalReward(trueMeans[action]);
+      banditRewards.push(reward);
+      actionCounts[action] += 1;
+      estimatedValues[action] += (reward - estimatedValues[action]) / actionCounts[action];
+      lastArm = action;
+
+      renderBandit();
+      const mode = exploring ? 'exploró una opción aleatoria' : 'explotó la mejor opción estimada';
+      document.getElementById('banditLog').innerText =
+        `Paso ${banditRewards.length}: el agente ${mode}.\n` +
+        `Brazo elegido: ${action}.\n` +
+        `Recompensa observada: ${reward.toFixed(3)}.\n` +
+        `Nueva estimación del brazo ${action}: ${estimatedValues[action].toFixed(3)}.\n\n` +
+        `Idea clave: el agente no conoce la recompensa real; solo ajusta sus estimaciones con la experiencia.`;
+    }
+
+    function runBanditMany() {
+      for (let i = 0; i < 100; i++) runBanditStep();
+    }
+
+    function renderBandit() {
+      const container = document.getElementById('banditArms');
+      container.innerHTML = '';
+      estimatedValues.forEach((value, index) => {
+        const div = document.createElement('div');
+        div.className = 'arm' + (lastArm === index ? ' active' : '');
+        const width = Math.max(0, Math.min(100, value * 100));
+        div.innerHTML = `
+          <span class="emoji">🎰</span>
+          <strong>Brazo ${index}</strong><br />
+          <small>estimado: ${value.toFixed(2)}</small>
+          <div class="bar-wrap"><div class="bar" style="width:${width}%"></div></div>
+          <small>veces: ${actionCounts[index]}</small>
+        `;
+        container.appendChild(div);
+      });
+
+      const avg = banditRewards.length
+        ? banditRewards.reduce((a, b) => a + b, 0) / banditRewards.length
+        : 0;
+      document.getElementById('banditSteps').innerText = banditRewards.length;
+      document.getElementById('banditAvg').innerText = avg.toFixed(3);
+    }
+
+    // --------------------------
+    // GridWorld Q-Learning demo
+    // --------------------------
+    const grid = [
+      ['S', 'F', 'F', 'F'],
+      ['F', 'H', 'F', 'H'],
+      ['F', 'F', 'F', 'H'],
+      ['H', 'F', 'F', 'G']
+    ];
+
+    const actions = [
+      { name: 'arriba', symbol: '↑', dr: -1, dc: 0 },
+      { name: 'derecha', symbol: '→', dr: 0, dc: 1 },
+      { name: 'abajo', symbol: '↓', dr: 1, dc: 0 },
+      { name: 'izquierda', symbol: '←', dr: 0, dc: -1 }
+    ];
+
+    let agent = { r: 0, c: 0 };
+    let qTable = Array.from({ length: 16 }, () => Array(4).fill(0));
+    let trained = false;
+    let lastReward = 0;
+    let estimatedSuccess = 0;
+
+    function stateIndex(r, c) {
+      return r * 4 + c;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function envStep(position, actionIndex) {
+      const action = actions[actionIndex];
+      const nr = clamp(position.r + action.dr, 0, 3);
+      const nc = clamp(position.c + action.dc, 0, 3);
+      const cell = grid[nr][nc];
+      let reward = -0.01;
+      let done = false;
+
+      if (cell === 'G') {
+        reward = 1;
+        done = true;
+      } else if (cell === 'H') {
+        reward = -1;
+        done = true;
+      }
+
+      return { position: { r: nr, c: nc }, reward, done, cell };
+    }
+
+    function resetGridworld() {
+      agent = { r: 0, c: 0 };
+      lastReward = 0;
+      renderBoard();
+      document.getElementById('gridLog').innerText = 'Ambiente reiniciado. El agente vuelve al estado inicial S.';
+      document.getElementById('rewardMetric').innerText = '0.00';
+    }
+
+    function renderBoard(showPolicy = trained) {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      grid.flat().forEach((cellValue, index) => {
+        const r = Math.floor(index / 4);
+        const c = index % 4;
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        if (cellValue === 'S') cell.classList.add('start');
+        if (cellValue === 'G') cell.classList.add('goal');
+        if (cellValue === 'H') cell.classList.add('hole');
+        cell.innerHTML = `<span>${cellValue}</span>`;
+
+        if (agent.r === r && agent.c === c) {
+          const dot = document.createElement('div');
+          dot.className = 'agent';
+          cell.appendChild(dot);
+        }
+
+        if (showPolicy && ['S', 'F'].includes(cellValue)) {
+          const state = stateIndex(r, c);
+          const bestAction = qTable[state].indexOf(Math.max(...qTable[state]));
+          const arrow = document.createElement('span');
+          arrow.className = 'policy-arrow';
+          arrow.innerText = actions[bestAction].symbol;
+          cell.appendChild(arrow);
+        }
+
+        board.appendChild(cell);
+      });
+    }
+
+    function manualRandomStep() {
+      const actionIndex = Math.floor(Math.random() * 4);
+      const previous = { ...agent };
+      const result = envStep(agent, actionIndex);
+      agent = result.position;
+      lastReward = result.reward;
+      renderBoard(false);
+      document.getElementById('rewardMetric').innerText = result.reward.toFixed(2);
+      document.getElementById('gridLog').innerText =
+        `Paso aleatorio:\n` +
+        `Estado anterior: ${stateIndex(previous.r, previous.c)}.\n` +
+        `Acción: ${actions[actionIndex].name} ${actions[actionIndex].symbol}.\n` +
+        `Nuevo estado: ${stateIndex(agent.r, agent.c)}.\n` +
+        `Recompensa: ${result.reward}.\n` +
+        `¿Terminó?: ${result.done ? 'sí' : 'no'}.`;
+
+      if (result.done) {
+        setTimeout(resetGridworld, 800);
+      }
+    }
+
+    function bestAction(state) {
+      return qTable[state].indexOf(Math.max(...qTable[state]));
+    }
+
+    function trainAgent() {
+      qTable = Array.from({ length: 16 }, () => Array(4).fill(0));
+      const episodes = 5000;
+      const maxSteps = 100;
+      const alpha = 0.10;
+      const gamma = 0.95;
+      let epsilon = 1.0;
+      const epsilonMin = 0.05;
+      const epsilonDecay = 0.995;
+      let successes = 0;
+      let totalRewards = 0;
+
+      for (let ep = 0; ep < episodes; ep++) {
+        let pos = { r: 0, c: 0 };
+        let epReward = 0;
+
+        for (let step = 0; step < maxSteps; step++) {
+          const state = stateIndex(pos.r, pos.c);
+          const actionIndex = Math.random() < epsilon
+            ? Math.floor(Math.random() * 4)
+            : bestAction(state);
+
+          const result = envStep(pos, actionIndex);
+          const nextState = stateIndex(result.position.r, result.position.c);
+          const bestNextValue = Math.max(...qTable[nextState]);
+          const temporalDifference = result.reward + gamma * bestNextValue - qTable[state][actionIndex];
+          qTable[state][actionIndex] += alpha * temporalDifference;
+
+          epReward += result.reward;
+          pos = result.position;
+
+          if (result.done) {
+            if (result.cell === 'G') successes += 1;
+            break;
+          }
+        }
+
+        epsilon = Math.max(epsilonMin, epsilon * epsilonDecay);
+        totalRewards += epReward;
+      }
+
+      trained = true;
+      agent = { r: 0, c: 0 };
+      estimatedSuccess = successes / episodes;
+      const meanReward = totalRewards / episodes;
+
+      document.getElementById('episodesMetric').innerText = episodes;
+      document.getElementById('successMetric').innerText = `${Math.round(estimatedSuccess * 100)}%`;
+      document.getElementById('rewardMetric').innerText = meanReward.toFixed(2);
+
+      renderBoard(true);
+      document.getElementById('gridLog').innerText =
+        `Entrenamiento completado.\n\n` +
+        `Episodios simulados: ${episodes}.\n` +
+        `Tasa de éxito aproximada durante entrenamiento: ${Math.round(estimatedSuccess * 100)}%.\n` +
+        `Recompensa media aproximada: ${meanReward.toFixed(3)}.\n\n` +
+        `Ahora las flechas representan la política aprendida: para cada celda libre, indican la acción con mayor valor Q.`;
+    }
+
+    async function runLearnedPolicy() {
+      if (!trained) trainAgent();
+      agent = { r: 0, c: 0 };
+      renderBoard(true);
+      document.getElementById('gridLog').innerText = 'Ejecutando la política aprendida paso a paso...';
+
+      for (let i = 0; i < 20; i++) {
+        const state = stateIndex(agent.r, agent.c);
+        const actionIndex = bestAction(state);
+        const result = envStep(agent, actionIndex);
+        agent = result.position;
+        renderBoard(true);
+        document.getElementById('rewardMetric').innerText = result.reward.toFixed(2);
+        document.getElementById('gridLog').innerText =
+          `Política aprendida, paso ${i + 1}:\n` +
+          `Estado: ${state}.\n` +
+          `Acción elegida: ${actions[actionIndex].name} ${actions[actionIndex].symbol}.\n` +
+          `Recompensa: ${result.reward}.\n` +
+          `Nuevo estado: ${stateIndex(agent.r, agent.c)}.`;
+
+        await new Promise((resolve) => setTimeout(resolve, 650));
+        if (result.done) {
+          document.getElementById('gridLog').innerText += result.cell === 'G'
+            ? '\n\nResultado: el agente llegó a la meta.'
+            : '\n\nResultado: el agente cayó en un hueco.';
+          break;
+        }
+      }
+    }
+
+    renderBandit();
+    renderBoard();
+  </script>
+</body>
+</html>
