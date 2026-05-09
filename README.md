@@ -225,23 +225,3 @@ H → → G
 ```
 
 Cada flecha representa la acción que el agente considera más conveniente en cada estado.
-
-## 7. Reproducibilidad
-
-Los scripts incluyen semillas fijas para facilitar la reproducción de los resultados. Sin embargo, los resultados pueden cambiar si se modifican algunos hiperparámetros.
-
-Parámetros importantes:
-
-| Parámetro | Significado |
-|---|---|
-| `episodes` | Número de episodios de entrenamiento |
-| `max_steps` | Número máximo de pasos por episodio |
-| `alpha` | Tasa de aprendizaje |
-| `gamma` | Factor de descuento |
-| `epsilon_start` | Nivel inicial de exploración |
-| `epsilon_min` | Nivel mínimo de exploración |
-| `epsilon_decay` | Velocidad con la que disminuye la exploración |
-
-Por ejemplo, aumentar `episodes` suele mejorar el aprendizaje, pero también aumenta el tiempo de ejecución. Reducir demasiado `epsilon` puede hacer que el agente deje de explorar antes de encontrar una buena política.
-
----
