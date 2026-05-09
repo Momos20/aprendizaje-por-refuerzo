@@ -70,18 +70,6 @@ Las recompensas del ambiente son:
 | Caer en un hueco | `-1.0` |
 | Dar un paso normal | `-0.01` |
 
-En resumen, `gridworld.py` responde la pregunta:
-
-> ¿En qué mundo aprende el agente y qué ocurre cuando toma una acción?
-
-Este archivo implementa funciones como:
-
-- `reset()`: reinicia el ambiente y ubica al agente en el estado inicial;
-- `step(action)`: ejecuta una acción y retorna el nuevo estado, la recompensa y si el episodio terminó;
-- `render_policy(q_table)`: convierte la tabla Q aprendida en una política visual con flechas.
-
----
-
 ### `src/q_learning.py`
 
 Este archivo implementa el **algoritmo de aprendizaje**.
